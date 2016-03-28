@@ -3,11 +3,10 @@
 /*
 JSGtk+ example showing how to build Gtk javascript applications
 emulating setTimeout, clearTimeout, setInterval and clearInterval
-functions with Mainloop timeout_add. It also shows how to import
-and use an application library
+functions.
 
 Run it with:
-    gjs egTimers.js
+    jsgtk egTimers.js
 */
 
 const Gtk       = require('Gtk');
@@ -123,7 +122,7 @@ App.prototype.actionSetInterval = function () {
     this.buttonCI.setSensitive(true);
     this.labelC.setText('Wait');
     this.counter = 0;
-    this.idInterval = timers.setInterval(() => {
+    this.idInterval = setInterval(() => {
         this.counter = this.counter + 1;
         this.labelC.setText(this.counter.toString());
     }, 500);
@@ -133,7 +132,7 @@ App.prototype.actionClearInterval = function () {
 
     this.buttonCI.setSensitive(false);
     this.labelC.setText('-');
-    timers.clearInterval(this.idInterval);
+    clearInterval(this.idInterval);
 };
 
 //Run the application
