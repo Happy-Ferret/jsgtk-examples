@@ -1,76 +1,53 @@
-#!/usr/bin/gjs
+#!/usr/bin/env jsgtk
 
 /*
-GJS example showing how to build Gtk javascript applications
-with FileChooserDialog with FileFilter, set_extra_widget (ComboBox),
-Gio File new_for_path, load_contents_async, query_info_async
+JSGtk+ example showing how to build Gtk javascript applications
+with FileChooserDialog with FileFilter, setExtraWidget (ComboBox)
 
 Run it with:
-    gjs egOpen.js
+    jsgtk egOpen.js
 */
 
-const Gio   = imports.gi.Gio;
-const GLib  = imports.gi.GLib;
-const GObj  = imports.gi.GObject;
-const Gtk   = imports.gi.Gtk;
-const Lang  = imports.lang;
-
-// Get application folder and add it into the imports path
-function getAppFileInfo() {
-    let stack = (new Error()).stack,
-        stackLine = stack.split('\n')[1],
-        coincidence, path, file;
-
-    if (!stackLine) throw new Error('Could not find current file (1)');
-
-    coincidence = new RegExp('@(.+):\\d+').exec(stackLine);
-    if (!coincidence) throw new Error('Could not find current file (2)');
-
-    path = coincidence[1];
-    file = Gio.File.new_for_path(path);
-    return [file.get_path(), file.get_parent().get_path(), file.get_basename()];
-}
-const path = getAppFileInfo()[1];
-imports.searchPath.push(path);
+const Gio   = require('Gio');
+const GLib  = require('GLib');
+const GObj  = require('GObject');
+const Gtk   = require('Gtk');
+const fs = require('fs');
 
 const App = function () { 
 
     this.title = 'Example Open';
-    GLib.set_prgname(this.title);
+    GLib.setPrgname(this.title);
 };
 
 App.prototype.run = function (ARGV) {
-
     this.application = new Gtk.Application();
-    this.application.connect('activate', Lang.bind(this, this.onActivate));
-    this.application.connect('startup', Lang.bind(this, this.onStartup));
+    this.application.on('activate', this.onActivate.bind(this));
+    this.application.on('startup', this.onStartup.bind(this));
     this.application.run([]);
 };
 
 App.prototype.onActivate = function () {
-
-    this.window.show_all();
+    this.window.showAll();
 };
 
 App.prototype.onStartup = function() {
-
     this.buildUI();
 };
 
 App.prototype.buildUI = function() {
-
     this.window = new Gtk.ApplicationWindow({ application: this.application,
                                               title: this.title,
-                                              default_height: 400,
-                                              default_width: 500,
-                                              window_position: Gtk.WindowPosition.CENTER });
+                                              defaultHeight: 400,
+                                              defaultWidth: 500,
+                                              windowPosition: Gtk.WindowPosition.CENTER });
     try {
-        this.window.set_icon_from_file(path + '/assets/appIcon.png');
+        this.window.setIconFromFile(__dirname + '/assets/appIcon.png');
     } catch (err) {
-        this.window.set_icon_name('application-x-executable');
+        this.window.setIconName('application-x-executable');
     }
 
-    this.window.set_titlebar(this.getHeader());
+    this.window.setTitlebar(this.getHeader());
     this.window.add(this.getBody());
 };
 
@@ -79,12 +56,12 @@ App.prototype.getHeader = function () {
     let headerBar, button;
 
     headerBar = new Gtk.HeaderBar();
-    headerBar.set_show_close_button(true);
+    headerBar.setShowCloseButton(true);
 
     button = new Gtk.Button({ label: 'Open' });
-    button.connect ('clicked', Lang.bind (this, this.openDialog));
+    button.on('clicked', this.openDialog.bind(this));
 
-    headerBar.pack_start(button);
+    headerBar.packStart(button);
     return headerBar;
 };
 
@@ -96,7 +73,7 @@ App.prototype.getBody = function () {
     scroll = new Gtk.ScrolledWindow({ hexpand: true, vexpand: true });
     this.buffer = new Gtk.TextBuffer();
     view = new Gtk.TextView();
-    view.set_buffer(this.buffer);
+    view.setBuffer(this.buffer);
 
     scroll.add(view);
 
@@ -113,63 +90,62 @@ App.prototype.openDialog = function() {
     let filter, chooser, store, combo, renderer, result, name, file, exit = false;
 
     filter = new Gtk.FileFilter();
-    filter.add_mime_type('text/plain');
+    filter.addMimeType('text/plain');
 
     chooser = new Gtk.FileChooserDialog({ 
         action: Gtk.FileChooserAction.OPEN,
         filter: filter,
-        select_multiple: false,
-        transient_for: this.window,
+        selectMultiple: false,
+        transientFor: this.window,
         title: 'Open'
     });
 
     // Without setting a current folder, folders won't show its contents
     //
     // Example set home folder by default: 
-    // chooser.set_current_folder(GLib.get_home_dir());
-    chooser.set_current_folder(path);
+    // chooser.setCurrentFolder(GLib.getHomeDir());
+    chooser.setCurrentFolder(__dirname);
 
     // Add the buttons and its return values
-    chooser.add_button('Cancel', Gtk.ResponseType.CANCEL);
-    chooser.add_button('OK', Gtk.ResponseType.OK);
+    chooser.addButton('Cancel', Gtk.ResponseType.CANCEL);
+    chooser.addButton('OK', Gtk.ResponseType.OK);
 
     // This is to add the 'combo' filtering options
     store = new Gtk.ListStore();
-    store.set_column_types([GObj.TYPE_STRING, GObj.TYPE_STRING]);
+    store.setColumnTypes([GObj.TYPE_STRING, GObj.TYPE_STRING]);
     store.set(store.append(), [0, 1], ['text', 'text/plain']);
     store.set(store.append(), [0, 1], ['js', '*.js']);
     store.set(store.append(), [0, 1], ['md', '*.md']);
 
     combo = new Gtk.ComboBox({ model: store });
     renderer = new Gtk.CellRendererText();
-    combo.pack_start(renderer, false);
-    combo.add_attribute(renderer, "text", 1);
-    combo.set_active(0);
-    combo.connect ('changed', Lang.bind (this, function (widget) {
+    combo.packStart(renderer, false);
+    combo.addAttribute(renderer, "text", 1);
+    combo.setActive(0);
+    combo.on('changed', widget => {
 
         let model, active, type, text, filter; 
 
-        model = widget.get_model();
-        active = widget.get_active_iter()[1];
+        model = widget.getModel();
+        active = widget.getActiveIter()[1];
 
-        type = model.get_value(active, 0);
-        text = model.get_value(active, 1);
+        type = model.getValue(active, 0);
+        text = model.getValue(active, 1);
 
+        filter = new Gtk.FileFilter();
         if (type === 'text') {
-            filter = new Gtk.FileFilter();
-            filter.add_mime_type(text);
+            filter.addMimeType(text);
         } else {
-            filter = new Gtk.FileFilter();
-            filter.add_pattern(text);
+            filter.addPattern(text);
         }
 
-        chooser.set_filter(filter);
-    }));
-    chooser.set_extra_widget(combo);
+        chooser.setFilter(filter);
+    });
+    chooser.setExtraWidget(combo);
 
     // Run the dialog
     result = chooser.run();
-    name = chooser.get_filename();
+    name = chooser.getFilename();
 
     if (result === Gtk.ResponseType.OK) {
         this.openFile(name);
@@ -178,36 +154,22 @@ App.prototype.openDialog = function() {
 };
 
 App.prototype.openFile = function(name) {
-    
-    let file;
 
-    file = Gio.File.new_for_path(name);
+    fs.readFile(name, (err, data) => {
+        this.buffer.delete(
+            this.buffer.getIterAtOffset(0),
+            this.buffer.getIterAtOffset(
+                this.buffer.getCharCount()
+            )
+        );
+        this.buffer.insertAtCursor(data.toString(), -1);
+    });
 
-    file.load_contents_async(null, Lang.bind(this, function(file, res) {
-        let contents;
-        try {
-            contents = file.load_contents_finish(res)[1];
-            this.buffer.delete(this.buffer.get_iter_at_offset(0),
-                               this.buffer.get_iter_at_offset(this.buffer.get_char_count()));
-            this.buffer.insert_at_cursor(contents.toString() + '\n', -1);
-        } catch (e) {
-            return;
-        }
-    }));
+    fs.stat(name, (err, info) => {
+        let text = 'File info type: ' + info.nlink + ', size: ' + info.size;
+        this.label.setText(text);
+    });
 
-    file.query_info_async('standard::type,standard::size',
-        Gio.FileQueryInfoFlags.NONE, GLib.PRIORITY_LOW, null,
-        Lang.bind(this, function(source, async) {
-
-            let info, type, size, text;
-
-            info = source.query_info_finish(async);
-            type = info.get_file_type();
-            size = info.get_size();
-
-            text = 'File info type: ' + type + ', size: ' + size;
-            this.label.set_text(text);
-        }));
 };
 
 //Run the application
