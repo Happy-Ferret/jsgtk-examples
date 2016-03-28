@@ -1,56 +1,36 @@
-#!/usr/bin/gjs
+#!/usr/bin/jsgtk
 
 /*
-GJS example showing how to build Gtk javascript applications
+JSGtk example showing how to build Gtk javascript applications
 using Gtk and Clutter, showing how to drag actors with
 Clutter.DragAction, perform animations with PropertyTransition,
 TransitionGroup and control the actor from Gtk.Scale
 
 Run it with:
-    gjs egCairo.js
+    jsgtk egClutter.js
 */
 
-const Gdk           = imports.gi.Gdk;
-const Clutter       = imports.gi.Clutter;
-const GtkClutter    = imports.gi.GtkClutter;
-const Gio           = imports.gi.Gio;
-const GLib          = imports.gi.GLib;
-const Gtk           = imports.gi.Gtk;
-const Lang          = imports.lang;
-
-// Get application folder and add it into the imports path
-function getAppFileInfo() {
-    let stack = (new Error()).stack,
-        stackLine = stack.split('\n')[1],
-        coincidence, path, file;
-
-    if (!stackLine) throw new Error('Could not find current file (1)');
-
-    coincidence = new RegExp('@(.+):\\d+').exec(stackLine);
-    if (!coincidence) throw new Error('Could not find current file (2)');
-
-    path = coincidence[1];
-    file = Gio.File.new_for_path(path);
-    return [file.get_path(), file.get_parent().get_path(), file.get_basename()];
-}
-const path = getAppFileInfo()[1];
-imports.searchPath.push(path);
+const
+    Clutter         = require('Clutter'),
+    GtkClutter      = require('GtkClutter'),
+    GLib            = require('GLib'),
+    Gtk             = require('Gtk')
+;
 
 const App = function () { 
     this.title = 'Example Clutter';
-    GLib.set_prgname(this.title);
+    GLib.setPrgname(this.title);
 };
 
 App.prototype.run = function (ARGV) {
 
     this.application = new Gtk.Application();
-    this.application.connect('activate', Lang.bind(this, this.onActivate));
-    this.application.connect('startup', Lang.bind(this, this.onStartup));
+    this.application.on('activate', this.onActivate.bind(this));
+    this.application.on('startup', this.onStartup.bind(this));
     this.application.run([]);
 };
 
 App.prototype.onActivate = function () {
-
     this.window.show_all();
 };
 
@@ -69,11 +49,11 @@ App.prototype.buildUI = function() {
 
     this.window = new Gtk.ApplicationWindow({ application: this.application,
                                               title: this.title,
-                                              default_height: 500,
-                                              default_width: 700,
-                                              window_position: Gtk.WindowPosition.CENTER });
+                                              defaultHeight: 500,
+                                              defaultWidth: 700,
+                                              windowPosition: Gtk.WindowPosition.CENTER });
     try {
-        this.window.set_icon_from_file(path + '/assets/appIcon.png');
+        this.window.set_icon_from_file(__dirname + '/assets/appIcon.png');
     } catch (err) {
         this.window.set_icon_name('application-x-executable');
     }
@@ -187,7 +167,7 @@ App.prototype.getActor = function() {
     // Textured actor example
     this.actor = new Clutter.Texture({
         background_color: colorDark,
-        filename: path + '/assets/egClutter.png',
+        filename: __dirname + '/assets/egClutter.png',
         height: 100,
         reactive: true,
         x: 150,
