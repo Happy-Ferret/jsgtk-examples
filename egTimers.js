@@ -1,7 +1,7 @@
-#!/usr/bin/gjs
+#!/usr/bin/env jsgtk
 
 /*
-GJS example showing how to build Gtk javascript applications
+JSGtk+ example showing how to build Gtk javascript applications
 emulating setTimeout, clearTimeout, setInterval and clearInterval
 functions with Mainloop timeout_add. It also shows how to import
 and use an application library
@@ -10,36 +10,16 @@ Run it with:
     gjs egTimers.js
 */
 
-const Gio       = imports.gi.Gio;
-const GLib      = imports.gi.GLib;
-const Gtk       = imports.gi.Gtk;
-const Lang      = imports.lang;
+const Gtk       = require('Gtk');
 
-// Get application folder and add it into the imports path
-function getAppFileInfo() {
-    let stack = (new Error()).stack,
-        stackLine = stack.split('\n')[1],
-        coincidence, path, file;
-
-    if (!stackLine) throw new Error('Could not find current file (1)');
-
-    coincidence = new RegExp('@(.+):\\d+').exec(stackLine);
-    if (!coincidence) throw new Error('Could not find current file (2)');
-
-    path = coincidence[1];
-    file = Gio.File.new_for_path(path);
-    return [file.get_path(), file.get_parent().get_path(), file.get_basename()];
-}
-const path = getAppFileInfo()[1];
-imports.searchPath.push(path);
-
-// Import the application library
-const Timers    = imports.assets.timers;
+// actually not necessary since in jsgtk both
+// setTimeout and setInterval are global by default
+const timers    = require('timers');
 
 const App = function () { 
 
     this.title = 'Example Timers';
-    GLib.set_prgname(this.title);
+    require('GLib').setPrgname(this.title);
 
     this.idTimeout;
     this.idInterval;
@@ -49,14 +29,14 @@ const App = function () {
 App.prototype.run = function (ARGV) {
 
     this.application = new Gtk.Application();
-    this.application.connect('activate', Lang.bind(this, this.onActivate));
-    this.application.connect('startup', Lang.bind(this, this.onStartup));
+    this.application.connect('activate', this.onActivate.bind(this));
+    this.application.connect('startup', this.onStartup.bind(this));
     this.application.run([]);
 };
 
 App.prototype.onActivate = function () {
 
-    this.window.show_all();
+    this.window.showAll();
 };
 
 App.prototype.onStartup = function() {
@@ -70,13 +50,13 @@ App.prototype.buildUI = function() {
 
     this.window = new Gtk.ApplicationWindow({ application: this.application,
                                               title: this.title,
-                                              default_height: 200,
-                                              default_width: 200,
-                                              window_position: Gtk.WindowPosition.CENTER });
+                                              defaultHeight: 200,
+                                              defaultWidth: 200,
+                                              windowPosition: Gtk.WindowPosition.CENTER });
     try {
-        this.window.set_icon_from_file(path + '/assets/appIcon.png');
+        this.window.setIconFromFile(__dirname + '/assets/appIcon.png');
     } catch (err) {
-        this.window.set_icon_name('application-x-executable');
+        this.window.setIconName('application-x-executable');
     }
 
     this.window.add(this.getBody());
@@ -86,28 +66,28 @@ App.prototype.getBody = function() {
 
     let grid, buttonST, buttonCT, buttonSI, buttonCI;
 
-    grid = new Gtk.Grid({ column_spacing: 6, row_spacing: 6 });
-    grid.set_border_width(8);
+    grid = new Gtk.Grid({ columnSpacing: 6, rowSpacing: 6 });
+    grid.setBorderWidth(8);
 
     buttonST = new Gtk.Button({ label: "setTimeout" });
-    buttonST.connect ('clicked', Lang.bind (this, this.actionSetTimeout));
+    buttonST.connect ('clicked', this.actionSetTimeout.bind(this));
 
     this.buttonCT = new Gtk.Button({ label: "clearTimeout" });
-    this.buttonCT.connect ('clicked', Lang.bind (this, this.actionClearTimeout));
-    this.buttonCT.set_sensitive(false);
+    this.buttonCT.connect ('clicked', this.actionClearTimeout.bind(this));
+    this.buttonCT.setSensitive(false);
 
     this.labelS = new Gtk.Label({ label: "-" });
-    this.labelS.set_size_request(200, -1);
+    this.labelS.setSizeRequest(200, -1);
 
     buttonSI = new Gtk.Button({ label: "setInterval" });
-    buttonSI.connect ('clicked', Lang.bind (this, this.actionSetInterval));
+    buttonSI.connect ('clicked', this.actionSetInterval.bind(this));
 
     this.buttonCI = new Gtk.Button({ label: "clearInterval" });
-    this.buttonCI.connect ('clicked', Lang.bind (this, this.actionClearInterval));
-    this.buttonCI.set_sensitive(false);
+    this.buttonCI.connect ('clicked', this.actionClearInterval.bind(this));
+    this.buttonCI.setSensitive(false);
 
     this.labelC = new Gtk.Label({ label: "-" });
-    this.labelC.set_size_request(200, -1);
+    this.labelC.setSizeRequest(200, -1);
 
     grid.attach(buttonST, 0, 0, 1, 1);
     grid.attach(this.buttonCT, 1, 0, 1, 1);
@@ -121,39 +101,39 @@ App.prototype.getBody = function() {
 
 App.prototype.actionSetTimeout = function () {
 
-    this.buttonCT.set_sensitive(true);
-    this.labelS.set_text('Wait 2s');
-    this.idTimeout = Timers.setTimeout(Lang.bind(this, function () {
+    this.buttonCT.setSensitive(true);
+    this.labelS.setText('Wait 2s');
+    this.idTimeout = timers.setTimeout(() => {
 
-        this.buttonCT.set_sensitive(false);
-        this.labelS.set_text('Now');
+        this.buttonCT.setSensitive(false);
+        this.labelS.setText('Now');
 
-    }), 2000);
+    }, 2000);
 };
 
 App.prototype.actionClearTimeout = function () {
 
-    this.buttonCT.set_sensitive(false);
-    this.labelS.set_text('-');
-    Timers.clearTimeout(this.idTimeout);
+    this.buttonCT.setSensitive(false);
+    this.labelS.setText('-');
+    timers.clearTimeout(this.idTimeout);
 };
 
 App.prototype.actionSetInterval = function () {
 
-    this.buttonCI.set_sensitive(true);
-    this.labelC.set_text('Wait');
+    this.buttonCI.setSensitive(true);
+    this.labelC.setText('Wait');
     this.counter = 0;
-    this.idInterval = Timers.setInterval(Lang.bind(this, function () {
+    this.idInterval = timers.setInterval(() => {
         this.counter = this.counter + 1;
-        this.labelC.set_text(this.counter.toString());
-    }), 500);
+        this.labelC.setText(this.counter.toString());
+    }, 500);
 };
 
 App.prototype.actionClearInterval = function () {
 
-    this.buttonCI.set_sensitive(false);
-    this.labelC.set_text('-');
-    Timers.clearInterval(this.idInterval);
+    this.buttonCI.setSensitive(false);
+    this.labelC.setText('-');
+    timers.clearInterval(this.idInterval);
 };
 
 //Run the application
