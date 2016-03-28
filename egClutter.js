@@ -81,12 +81,12 @@ App.prototype.buildBody = function() {
     });
     scale.setRange(-35, 35);
     scale.setSizeRequest(150, -1);
-    scale.connect('change-value', widget => {
+    scale.on('change-value', widget => {
         this.actor.setRotation(Clutter.RotateAxis.Y_AXIS, widget.getValue(), 50, 0, 0);
     });
 
     buttonStart = new Gtk.Button({ label: 'Play' });
-    buttonStart.connect ('clicked', () => {
+    buttonStart.on('clicked', () => {
 
         let tg, pt;
 
@@ -110,7 +110,7 @@ App.prototype.buildBody = function() {
     });
 
     buttonStop = new Gtk.Button({ label: 'Stop', sensitive: false });
-    buttonStop.connect ('clicked', () => {
+    buttonStop.on('clicked', () => {
 
         this.actor.removeTransition('rotateTransition');
         this.actor.setRotationAngle(Clutter.RotateAxis.Z_AXIS, 0);
@@ -147,13 +147,13 @@ App.prototype.getActor = function() {
         xDragThreshold: 0,
         yDragThreshold: 0
     });
-    action.connect('drag-begin', (action, actor, x, y, modifiers) => {
+    action.on('drag-begin', (action, actor, x, y, modifiers) => {
         this.position.setText('X: ' + x.toFixed(2) + ', Y: ' + y.toFixed(2) + ' - S');
     });
-    action.connect('drag-end', (action, actor, x, y, modifiers) => {
+    action.on('drag-end', (action, actor, x, y, modifiers) => {
         this.position.setText('X: ' + x.toFixed(2) + ', Y: ' + y.toFixed(2) + ' - E');
     });
-    action.connect('drag-motion', (action, actor, x, y, modifiers) => {
+    action.on('drag-motion', (action, actor, x, y, modifiers) => {
         this.position.setText('X: ' + x.toFixed(2) + ', Y: ' + y.toFixed(2) + ' - D');
     });
     /* 
@@ -174,11 +174,11 @@ App.prototype.getActor = function() {
         y: 150,
         width: 100
     });
-    this.actor.connect('enter-event', (actor, event) => {
+    this.actor.on('enter-event', (actor, event) => {
         actor.setBackgroundColor(colorLight);
 
     });
-    this.actor.connect('leave-event', (actor, event) => {
+    this.actor.on('leave-event', (actor, event) => {
         actor.setBackground_color(colorDark);
     });
     this.actor.addAction(action);

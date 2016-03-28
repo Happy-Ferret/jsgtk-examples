@@ -23,8 +23,8 @@ const App = function () {
 App.prototype.run = function (ARGV) {
 
     this.application = new Gtk.Application();
-    this.application.connect('activate', this.onActivate.bind(this));
-    this.application.connect('startup', this.onStartup.bind(this));
+    this.application.on('activate', this.onActivate.bind(this));
+    this.application.on('startup', this.onStartup.bind(this));
     this.application.run([]);
 };
 
@@ -57,15 +57,15 @@ App.prototype.initMenu = function() {
     menu.appendSection(null, section);
 
     dialogAction = new Gio.SimpleAction ({ name: 'dialog' });
-    dialogAction.connect('activate', this.showDialog.bind(this));
+    dialogAction.on('activate', this.showDialog.bind(this));
     this.application.addAction(dialogAction);
 
     modalAction = new Gio.SimpleAction ({ name: 'modal' });
-    modalAction.connect('activate', this.showModal.bind(this));
+    modalAction.on('activate', this.showModal.bind(this));
     this.application.addAction(modalAction);
 
     quitAction = new Gio.SimpleAction ({ name: 'quit' });
-    quitAction.connect('activate', () => {
+    quitAction.on('activate', () => {
         this.window.destroy();
     });
     this.application.addAction(quitAction);
@@ -120,7 +120,7 @@ App.prototype.showDialog = function() {
         useHeaderBar: true
     });
 
-    dialog.connect('response', function() {
+    dialog.on('response', function() {
         dialog.destroy();
     });
 
@@ -148,7 +148,7 @@ App.prototype.showModal = function() {
         useHeaderBar: false
     });
 
-    modal.connect('response', function() {
+    modal.on('response', function() {
         modal.destroy();
     });
 
@@ -156,7 +156,7 @@ App.prototype.showModal = function() {
     contentArea.add(label);
 
     button = Gtk.Button.newWithLabel ('OK');
-    button.connect ("clicked", () => {
+    button.on("clicked", () => {
         print('OK pressed');
         modal.destroy();
     });

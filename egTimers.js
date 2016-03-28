@@ -29,8 +29,8 @@ const App = function () {
 App.prototype.run = function (ARGV) {
 
     this.application = new Gtk.Application();
-    this.application.connect('activate', this.onActivate.bind(this));
-    this.application.connect('startup', this.onStartup.bind(this));
+    this.application.on('activate', this.onActivate.bind(this));
+    this.application.on('startup', this.onStartup.bind(this));
     this.application.run([]);
 };
 
@@ -66,20 +66,20 @@ App.prototype.getBody = function() {
     grid.setBorderWidth(8);
 
     buttonST = new Gtk.Button({ label: "setTimeout" });
-    buttonST.connect ('clicked', this.actionSetTimeout.bind(this));
+    buttonST.on('clicked', this.actionSetTimeout.bind(this));
 
     this.buttonCT = new Gtk.Button({ label: "clearTimeout" });
-    this.buttonCT.connect ('clicked', this.actionClearTimeout.bind(this));
+    this.buttonCT.on('clicked', this.actionClearTimeout.bind(this));
     this.buttonCT.setSensitive(false);
 
     this.labelS = new Gtk.Label({ label: "-" });
     this.labelS.setSizeRequest(200, -1);
 
     buttonSI = new Gtk.Button({ label: "setInterval" });
-    buttonSI.connect ('clicked', this.actionSetInterval.bind(this));
+    buttonSI.on('clicked', this.actionSetInterval.bind(this));
 
     this.buttonCI = new Gtk.Button({ label: "clearInterval" });
-    this.buttonCI.connect ('clicked', this.actionClearInterval.bind(this));
+    this.buttonCI.on('clicked', this.actionClearInterval.bind(this));
     this.buttonCI.setSensitive(false);
 
     this.labelC = new Gtk.Label({ label: "-" });

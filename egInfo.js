@@ -36,11 +36,11 @@ const App = function () {
     };
 };
 
-App.prototype.run = function (ARGV) {
+App.prototype.run = function () {
 
     this.application = new Gtk.Application();
-    this.application.connect('activate', this.onActivate.bind(this));
-    this.application.connect('startup', this.onStartup.bind(this));
+    this.application.on('activate', this.onActivate.bind(this));
+    this.application.on('startup', this.onStartup.bind(this));
     this.application.run([]);
 };
 
@@ -125,4 +125,4 @@ App.prototype.setLabel = function() {
 
 //Run the application
 let app = new App();
-app.run(ARGV);
+app.run();
