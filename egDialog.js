@@ -20,7 +20,7 @@ const App = function () {
     GLib.setPrgname(this.title);
 };
 
-App.prototype.run = function (ARGV) {
+App.prototype.run = function () {
 
     this.application = new Gtk.Application();
     this.application.on('activate', this.onActivate.bind(this));
@@ -29,7 +29,6 @@ App.prototype.run = function (ARGV) {
 };
 
 App.prototype.onActivate = function () {
-
     this.window.showAll();
 };
 
@@ -120,9 +119,7 @@ App.prototype.showDialog = function() {
         useHeaderBar: true
     });
 
-    dialog.on('response', function() {
-        dialog.destroy();
-    });
+    dialog.on('response', dialog.destroy);
 
     contentArea = dialog.getContentArea();
     contentArea.add(label);
@@ -148,9 +145,7 @@ App.prototype.showModal = function() {
         useHeaderBar: false
     });
 
-    modal.on('response', function() {
-        modal.destroy();
-    });
+    modal.on('response', modal.destroy);
 
     contentArea = modal.getContentArea();
     contentArea.add(label);
@@ -169,4 +164,4 @@ App.prototype.showModal = function() {
 
 //Run the application
 let app = new App();
-app.run(ARGV);
+app.run();

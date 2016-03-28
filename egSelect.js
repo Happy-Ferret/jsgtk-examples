@@ -22,7 +22,7 @@ const App = function () {
     this.selectionMode = false;
 };
 
-App.prototype.run = function (ARGV) {
+App.prototype.run = function () {
     this.application = new Gtk.Application();
     this.application.on('activate', this.onActivate.bind(this));
     this.application.on('startup', this.onStartup.bind(this));

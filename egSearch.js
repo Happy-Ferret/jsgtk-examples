@@ -22,7 +22,7 @@ const App = function () {
     this.filterText = '';
 };
 
-App.prototype.run = function (ARGV) {
+App.prototype.run = function () {
 
     this.application = new Gtk.Application();
     this.application.on('activate', this.onActivate.bind(this));
@@ -162,4 +162,4 @@ App.prototype.printText = function (text) {
 
 //Run the application
 let app = new App();
-app.run(ARGV);
+app.run();

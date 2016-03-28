@@ -22,7 +22,7 @@ const App = function () {
     this.info = null;
 };
 
-App.prototype.run = function (ARGV) {
+App.prototype.run = function () {
 
     this.application = new Gtk.Application();
     this.application.on('activate', this.onActivate.bind(this));
@@ -101,5 +101,5 @@ App.prototype.write = function() {
 
 //Run the application
 let app = new App();
-app.run(ARGV);
+app.run();
 

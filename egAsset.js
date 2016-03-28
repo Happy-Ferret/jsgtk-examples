@@ -19,7 +19,7 @@ const App = function () {
     GLib.setPrgname(this.title);
 };
 
-App.prototype.run = function (ARGV) {
+App.prototype.run = function () {
     this.application = new Gtk.Application();
     this.application.on('activate', this.onActivate.bind(this));
     this.application.on('startup', this.onStartup.bind(this));
