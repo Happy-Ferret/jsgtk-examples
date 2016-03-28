@@ -1,12 +1,12 @@
-#!/usr/bin/gjs
+#!/usr/bin/env jsgtk
 
 /*
-GJS example showing how to build Gtk javascript applications
-using Webkit.WebView, also showing how to send messages from GTK
-to Webkit and vice versa
+JSGtk+ example showing how to build Gtk javascript applications
+using WebKit2.WebView, also showing how to send messages from GTK
+to WebKit2 and vice versa
 
 Run it with:
-    gjs egWebmsg.js
+    jsgtk egWebmsg.js
 */
 
 const
@@ -62,7 +62,7 @@ App.prototype.getBody = function() {
     let webView = new WebKit2.WebView({ vexpand: true });
     webView.loadUri(GLib.filenameToUri(defaultUri, null));
     // intercept requests as these happen
-    webView.connect('decide-policy', (webView, policy, type) => {
+    webView.on('decide-policy', (webView, policy, type) => {
         switch(type) {
             case WebKit2.PolicyDecisionType.NAVIGATION_ACTION:
                 let uri = policy.getRequest().getUri();
@@ -73,6 +73,7 @@ App.prototype.getBody = function() {
                 break;
         }
     });
+
     grid.attach(webView, 0, 0, 2, 1);
 
     let button = new Gtk.Button({ label: 'GTK to Webkit message' }).on('clicked', () => {
