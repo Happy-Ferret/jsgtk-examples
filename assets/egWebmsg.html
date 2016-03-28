@@ -10,7 +10,7 @@
         }
         function messageToGTK () {
             // Webkit will be notified about a request change
-            location.href = 'jsgtk:' + encodeURIComponent('Message from Webkit');
+            location.href = 'jsgtk:' + encodeURIComponent(JSON.stringify('Message from Webkit'));
         }
         </script>
 

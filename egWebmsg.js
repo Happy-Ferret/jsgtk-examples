@@ -12,7 +12,8 @@ Run it with:
 const
     GLib  = require('GLib'),
     Gtk = require('Gtk'),
-    Webkit = require('WebKit2')
+    WebKit2 = require('WebKit2'),
+    channel = 'jsgtk'
 ;
 
 const App = function () { 
@@ -58,16 +59,16 @@ App.prototype.getBody = function() {
     let defaultUri = __dirname + '/assets/egWebmsg.html';
     let grid = new Gtk.Grid({ columnHomogeneous: true });
 
-    let webView = new Webkit.WebView({ vexpand: true });
+    let webView = new WebKit2.WebView({ vexpand: true });
     webView.loadUri(GLib.filenameToUri(defaultUri, null));
-    webView.connect('load-changed', (webView, evt) => {
-        switch (evt) {
-            case Webkit.LoadEvent.STARTED:
-                let uri = webView.getUri();
-                if (uri.indexOf('jsgtk:') === 0) {
-                    label.label = decodeURIComponent(uri.slice(6));
-                    // TODO: prevent loading this uri
-                    // webView.loadUri(defaultUri);
+    // intercept requests as these happen
+    webView.connect('decide-policy', (webView, policy, type) => {
+        switch(type) {
+            case WebKit2.PolicyDecisionType.NAVIGATION_ACTION:
+                let uri = policy.getRequest().getUri();
+                if (uri.indexOf(channel + ':') === 0) {
+                    label.label = JSON.parse(decodeURIComponent(uri.slice(channel.length + 1)));
+                    policy.ignore();
                 }
                 break;
         }
