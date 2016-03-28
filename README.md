@@ -1,4 +1,4 @@
-# gjs-examples
+# jsgtk-examples
 JSGtk+ examples showing how to build Gtk JavaScript applications.
 
 All examples were [originally based on GJS](https://github.com/optimisme/gjs-examples#gjs-examples), here readapted to use part of [jsgtk](https://github.com/WebReflection/jsgtk#jsgtk) features.
