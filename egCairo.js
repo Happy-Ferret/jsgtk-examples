@@ -14,7 +14,6 @@ Run it with:
 const
     Clutter       = require('Clutter'),
     GtkClutter    = require('GtkClutter'),
-    Gio           = require('Gio'),
     GLib          = require('GLib'),
     Gtk           = require('Gtk')
 ;

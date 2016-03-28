@@ -10,7 +10,6 @@ Run it with:
 */
 
 const
-    Gio     = require('Gio'),
     GLib    = require('GLib'),
     Gtk     = require('Gtk'),
     Pango   = require('Pango')

@@ -1,12 +1,12 @@
-#!/usr/bin/gjs
+#!/usr/bin/env jsgtk
 
 /*
-GJS example showing how to build Gtk javascript applications
+JSGtk+ example showing how to build Gtk javascript applications
 setting the application icon from the 'assets' folder and if
 not available from the 'stock icons'
 
 Run it with:
-    gjs egIcon.js
+    jsgtk egIcon.js
 */
 
 const
