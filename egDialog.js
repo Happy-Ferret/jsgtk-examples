@@ -1,53 +1,36 @@
-#!/usr/bin/gjs
+#!/usr/bin/env jsgtk
 
 /*
-GJS example showing how to build Gtk javascript applications
+JSGtk+ example showing how to build Gtk javascript applications
 adding an option to the application's Gio.Menu and opening 
 dialog and modal windows using Gtk.Dialog
 
 Run it with:
-    gjs egDialog.js
+    jsgtk egDialog.js
 */
 
-const Gio   = imports.gi.Gio;
-const GLib  = imports.gi.GLib;
-const Gtk   = imports.gi.Gtk;
-const Lang  = imports.lang;
-
-// Get application folder and add it into the imports path
-function getAppFileInfo() {
-    let stack = (new Error()).stack,
-        stackLine = stack.split('\n')[1],
-        coincidence, path, file;
-
-    if (!stackLine) throw new Error('Could not find current file (1)');
-
-    coincidence = new RegExp('@(.+):\\d+').exec(stackLine);
-    if (!coincidence) throw new Error('Could not find current file (2)');
-
-    path = coincidence[1];
-    file = Gio.File.new_for_path(path);
-    return [file.get_path(), file.get_parent().get_path(), file.get_basename()];
-}
-const path = getAppFileInfo()[1];
-imports.searchPath.push(path);
+const
+    Gio     = require('Gio'),
+    GLib    = require('GLib'),
+    Gtk     = require('Gtk')
+;
 
 const App = function () { 
     this.title = 'Example Dialog';
-    GLib.set_prgname(this.title);
+    GLib.setPrgname(this.title);
 };
 
 App.prototype.run = function (ARGV) {
 
     this.application = new Gtk.Application();
-    this.application.connect('activate', Lang.bind(this, this.onActivate));
-    this.application.connect('startup', Lang.bind(this, this.onStartup));
+    this.application.connect('activate', this.onActivate.bind(this));
+    this.application.connect('startup', this.onStartup.bind(this));
     this.application.run([]);
 };
 
 App.prototype.onActivate = function () {
 
-    this.window.show_all();
+    this.window.showAll();
 };
 
 App.prototype.onStartup = function() {
@@ -63,31 +46,31 @@ App.prototype.initMenu = function() {
 
     section = new Gio.Menu();
     section.append("Dialog", 'app.dialog');
-    menu.append_section(null, section);
+    menu.appendSection(null, section);
 
     section = new Gio.Menu();
     section.append("Modal", 'app.modal');
-    menu.append_section(null, section);
+    menu.appendSection(null, section);
 
     section = new Gio.Menu();
     section.append("Quit",'app.quit');
-    menu.append_section(null, section);
+    menu.appendSection(null, section);
 
     dialogAction = new Gio.SimpleAction ({ name: 'dialog' });
-    dialogAction.connect('activate', Lang.bind(this, this.showDialog));
-    this.application.add_action(dialogAction);
+    dialogAction.connect('activate', this.showDialog.bind(this));
+    this.application.addAction(dialogAction);
 
     modalAction = new Gio.SimpleAction ({ name: 'modal' });
-    modalAction.connect('activate', Lang.bind(this, this.showModal));
-    this.application.add_action(modalAction);
+    modalAction.connect('activate', this.showModal.bind(this));
+    this.application.addAction(modalAction);
 
     quitAction = new Gio.SimpleAction ({ name: 'quit' });
-    quitAction.connect('activate', Lang.bind(this, function() {
+    quitAction.connect('activate', () => {
         this.window.destroy();
-    }));
-    this.application.add_action(quitAction);
+    });
+    this.application.addAction(quitAction);
 
-    this.application.set_app_menu(menu);
+    this.application.setAppMenu(menu);
 };
 
 App.prototype.buildUI = function() {
@@ -96,13 +79,13 @@ App.prototype.buildUI = function() {
 
     this.window = new Gtk.ApplicationWindow({ application: this.application,
                                               title: this.title,
-                                              default_height: 300,
-                                              default_width: 500,
-                                              window_position: Gtk.WindowPosition.CENTER });
+                                              defaultHeight: 300,
+                                              defaultWidth: 500,
+                                              windowPosition: Gtk.WindowPosition.CENTER });
     try {
-        this.window.set_icon_from_file(path + '/assets/appIcon.png');
+        this.window.setIconFromFile(__dirname + '/assets/appIcon.png');
     } catch (err) {
-        this.window.set_icon_name('application-x-executable');
+        this.window.setIconName('application-x-executable');
     }
 
     this.window.add(this.getBody());
@@ -113,8 +96,8 @@ App.prototype.getBody = function() {
     let label;
 
     label = new Gtk.Label({ label: "Open the '" + this.title + "' application menu and click on 'Dialog' or 'Modal'" });
-    label.set_line_wrap(true);
-    label.set_lines(5);
+    label.setLineWrap(true);
+    label.setLines(5);
 
     return label;
 };
@@ -129,22 +112,22 @@ App.prototype.showDialog = function() {
     });
 
     dialog = new Gtk.Dialog({ 
-        default_height: 200,
-        default_width: 200,
+        defaultHeight: 200,
+        defaultWidth: 200,
         modal: false,
-        transient_for: this.window,
+        transientFor: this.window,
         title: 'Dialog',
-        use_header_bar: true
+        useHeaderBar: true
     });
 
     dialog.connect('response', function() {
         dialog.destroy();
     });
 
-    contentArea = dialog.get_content_area();
+    contentArea = dialog.getContentArea();
     contentArea.add(label);
 
-    dialog.show_all();
+    dialog.showAll();
 };
 
 App.prototype.showModal = function() {
@@ -157,31 +140,31 @@ App.prototype.showModal = function() {
     });
 
     modal = new Gtk.Dialog({ 
-        default_height: 200,
-        default_width: 200,
+        defaultHeight: 200,
+        defaultWidth: 200,
         modal: true,
-        transient_for: this.window,
+        transientFor: this.window,
         title: 'Modal',
-        use_header_bar: false
+        useHeaderBar: false
     });
 
     modal.connect('response', function() {
         modal.destroy();
     });
 
-    contentArea = modal.get_content_area();
+    contentArea = modal.getContentArea();
     contentArea.add(label);
 
-    button = Gtk.Button.new_with_label ('OK');
-    button.connect ("clicked", Lang.bind (this, function() {
+    button = Gtk.Button.newWithLabel ('OK');
+    button.connect ("clicked", () => {
         print('OK pressed');
         modal.destroy();
-    }));
+    });
 
-    actionArea = modal.get_action_area();
+    actionArea = modal.getActionArea();
     actionArea.add(button);
 
-    modal.show_all();
+    modal.showAll();
 };
 
 //Run the application
