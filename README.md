@@ -1,7 +1,7 @@
 # jsgtk-examples
 JSGtk+ examples showing how to build Gtk JavaScript applications.
 
-All examples were [originally based on GJS](https://github.com/optimisme/gjs-examples#gjs-examples), here readapted to use part of [jsgtk](https://github.com/WebReflection/jsgtk#jsgtk) features.
+All examples were [originally based on GJS](https://github.com/optimisme/gjs-examples#gjs-examples), here readapted to use part of **[jsgtk](https://github.com/WebReflection/jsgtk#jsgtk)** features.
 
 
 
@@ -10,21 +10,23 @@ All examples were [originally based on GJS](https://github.com/optimisme/gjs-exa
 Download this project with:
 
 ```sh
-git clone https://github.com/WebReflection/gjs-examples.git
+git clone https://github.com/WebReflection/jsgtk-examples.git
 
-cd gjs-examples
+cd jsgtk-examples
 ```
 
 Then install `jsgtk` via `npm install -g jsgtk` and run the examples with:
 
 ```sh
-jsgtk egAsset.js
+jsgtk egAsset
 
-jsgtk egHeader.js
+jsgtk egHeader
 
-jsgtk egList.js
+jsgtk egList
 
-jsgtk egSearch.js
+jsgtk egSearch
+
+# ... etc ...
 ```
 
 
@@ -170,7 +172,7 @@ Clutter.Canvas
 ### egWebmsg.js
 
 JSGtk+ example showing how to build Gtk javascript applications
-using Webkit.WebView, also showing how to send messages from GTK
+using WebKit2.WebView, also showing how to send messages from GTK
 to Webkit and vice versa
 
 ![egWebmsg0](https://raw.github.com/WebReflection/jsgtk-examples/master/captures/egWebmsg0.png)
