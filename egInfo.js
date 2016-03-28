@@ -1,43 +1,23 @@
-#!/usr/bin/gjs
+#!/usr/bin/env jsgtk
 
 /*
-GJS example showing how to build Gtk javascript applications
+JSGtk+ example showing how to build Gtk javascript applications
 getting information from GLib and command line
 
 Run it with:
-    gjs egInfo.js
+    jsgtk egInfo.js
 */
 
-const Gio   = imports.gi.Gio;
-const GLib  = imports.gi.GLib;
-const Gtk   = imports.gi.Gtk;
-const Lang  = imports.lang;
-
-// Get application folder and add it into the imports path
-function getAppFileInfo() {
-    let stack = (new Error()).stack,
-        stackLine = stack.split('\n')[1],
-        coincidence, path, file;
-
-    if (!stackLine) throw new Error('Could not find current file (1)');
-
-    coincidence = new RegExp('@(.+):\\d+').exec(stackLine);
-    if (!coincidence) throw new Error('Could not find current file (2)');
-
-    path = coincidence[1];
-    file = Gio.File.new_for_path(path);
-    return [file.get_path(), file.get_parent().get_path(), file.get_basename()];
-}
-const path = getAppFileInfo()[1];
-imports.searchPath.push(path);
-
-// Import spawn library
-const Spawn = imports.assets.spawn;
+const
+    GLib  = require('GLib'),
+    Gtk   = require('Gtk'),
+    spawn = require('child_process').spawn
+;
 
 const App = function () { 
 
     this.title = 'Example Info';
-    GLib.set_prgname(this.title);
+    GLib.setPrgname(this.title);
 
     this.info = {
         desktop: '',
@@ -59,14 +39,14 @@ const App = function () {
 App.prototype.run = function (ARGV) {
 
     this.application = new Gtk.Application();
-    this.application.connect('activate', Lang.bind(this, this.onActivate));
-    this.application.connect('startup', Lang.bind(this, this.onStartup));
+    this.application.connect('activate', this.onActivate.bind(this));
+    this.application.connect('startup', this.onStartup.bind(this));
     this.application.run([]);
 };
 
 App.prototype.onActivate = function () {
 
-    this.window.show_all();
+    this.window.showAll();
 };
 
 App.prototype.onStartup = function() {
@@ -79,15 +59,15 @@ App.prototype.buildUI = function() {
 
     this.window = new Gtk.ApplicationWindow({ application: this.application,
                                               title: this.title,
-                                              default_height: 400,
-                                              default_width: 400,
-                                              window_position: Gtk.WindowPosition.CENTER });
+                                              defaultHeight: 400,
+                                              defaultWidth: 400,
+                                              windowPosition: Gtk.WindowPosition.CENTER });
     try {
         this.info.icon = '/assets/appIcon.png';
-        this.window.set_icon_from_file(path + this.info.icon);
+        this.window.setIconFromFile(__dirname + this.info.icon);
     } catch (err) {
         this.info.icon = 'application-x-executable';
-        this.window.set_icon_name(this.info.icon);
+        this.window.setIconName(this.info.icon);
     }
 
     this.label = new Gtk.Label({ label: '', margin: 15 });
@@ -95,34 +75,27 @@ App.prototype.buildUI = function() {
 };
 
 App.prototype.getInfo = function() {
-    
-    let file, reader1, reader2;
-
-    file = getAppFileInfo();
 
     this.info.desktop = GLib.getenv('XDG_CURRENT_DESKTOP');
-    this.info.host = GLib.get_host_name();
-    this.info.user = GLib.get_user_name();
+    this.info.host = GLib.getHostName();
+    this.info.user = GLib.getUserName();
     this.info.lang = GLib.getenv('LANG');
-    this.info.home = GLib.get_home_dir();
-    this.info.installed = (file[1].indexOf('./local/share/applications') !== -1);
-    this.info.program = GLib.get_prgname();
-    this.info.script = file[2];
-    this.info.folder = file[1];
-    this.info.current = GLib.get_current_dir();
-    this.setLabel();
-    
-    reader1 = new Spawn.SpawnReader();
-    reader1.spawn('./', ['lsb_release', '-d'], Lang.bind (this, function (line) {
-        this.info.dstr = line.toString().split('\n')[0].split(':\t')[1];
-        this.setLabel();
-    }));
+    this.info.home = GLib.getHomeDir();
+    this.info.installed = (__dirname.indexOf('bin/') !== -1);
+    this.info.program = GLib.getPrgname();
+    this.info.script = __filename;
+    this.info.folder = __dirname;
+    this.info.current = process.cwd();
 
-    reader2 = new Spawn.SpawnReader();
-    reader2.spawn('./', ['uname', '-r'], Lang.bind (this, function (line) {
-        this.info.kernel = line.toString();
+    spawn('uname', ['-r']).stdout.on('data', (line) => {
+        this.info.kernel = line.toString().trim();
         this.setLabel();
-    }));
+    });
+
+    spawn('lsb_release', ['-d']).stdout.on('data', (line) => {
+        this.info.dstr = line.toString().trim();
+        this.setLabel();
+    });
 };
 
 
@@ -147,7 +120,7 @@ App.prototype.setLabel = function() {
     if (this.info.dstr !== '')      text = text + '\nDistro: ' + this.info.dstr;
     if (this.info.kernel !== '')    text = text + '\nKernel: ' + this.info.kernel;
 
-    this.label.set_text(text);
+    this.label.setText(text);
 };
 
 //Run the application
