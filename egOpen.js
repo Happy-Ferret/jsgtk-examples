@@ -8,19 +8,18 @@ Run it with:
     jsgtk egOpen.js
 */
 
-const Gio   = require('Gio');
-const GLib  = require('GLib');
-const GObj  = require('GObject');
-const Gtk   = require('Gtk');
-const fs = require('fs');
+const
+    GObj    = require('GObject'),
+    Gtk     = require('Gtk'),
+    fs      = require('fs')
+;
 
-const App = function () { 
-
+function App() {
     this.title = 'Example Open';
-    GLib.setPrgname(this.title);
-};
+    require('GLib').setPrgname(this.title);
+}
 
-App.prototype.run = function (ARGV) {
+App.prototype.run = function () {
     this.application = new Gtk.Application();
     this.application.on('activate', this.onActivate.bind(this));
     this.application.on('startup', this.onStartup.bind(this));
@@ -174,6 +173,5 @@ App.prototype.openFile = function(name) {
 
 //Run the application
 let app = new App();
-app.run(ARGV);
+app.run();
 
-// Help: https://people.gnome.org/~gcampagna/docs/Gio-2.0/Gio.File.html
