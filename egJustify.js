@@ -1,11 +1,11 @@
-#!/usr/bin/gjs
+#!/usr/bin/env jsgtk
 
 /*
-GJS example showing how to build Gtk javascript applications
+JSGtk+ example showing how to build Gtk javascript applications
 using Gtk.Label and its justification options
 
 Run it with:
-    gjs egJustify.js
+    jsgtk egJustify.js
 */
 
 const

@@ -9,10 +9,11 @@ Run it with:
     jsgtk egTimers.js
 */
 
-const Gtk       = require('Gtk');
+const Gtk = require('Gtk');
 
 // actually not necessary since in jsgtk both
 // setTimeout and setInterval are global by default
+// same as it is in Node.JS
 const timers    = require('timers');
 
 const App = function () { 
@@ -34,18 +35,14 @@ App.prototype.run = function (ARGV) {
 };
 
 App.prototype.onActivate = function () {
-
     this.window.showAll();
 };
 
 App.prototype.onStartup = function() {
-
     this.buildUI();
 };
 
 App.prototype.buildUI = function() {
-
-    let scroll;
 
     this.window = new Gtk.ApplicationWindow({ application: this.application,
                                               title: this.title,

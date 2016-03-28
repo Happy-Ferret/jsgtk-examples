@@ -1,7 +1,7 @@
 #!/usr/bin/env jsgtk
 
 /*
-JSGtk example showing how to build Gtk javascript applications
+JSGtk+ example showing how to build Gtk javascript applications
 using Gtk.Image
 
 Run it with:

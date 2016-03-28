@@ -1,12 +1,12 @@
-#!/usr/bin/gjs
+#!/usr/bin/env jsgtk
 
 /*
-GJS example showing how to build Gtk javascript applications
+JSGtk+ example showing how to build Gtk javascript applications
 using Gtk.EventBox to catch events for widgets which do not 
 have their own window
 
 Run it with:
-    gjs egJustify.js
+    jsgtk egJustify.js
 */
 
 const

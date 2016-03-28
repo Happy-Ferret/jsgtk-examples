@@ -1,7 +1,7 @@
-#!/usr/bin/jsgtk
+#!/usr/bin/env jsgtk
 
 /*
-JSGtk example showing how to build Gtk javascript applications
+JSGtk+ example showing how to build Gtk javascript applications
 using Gtk and Clutter, showing how to drag actors with
 Clutter.DragAction, perform animations with PropertyTransition,
 TransitionGroup and control the actor from Gtk.Scale
