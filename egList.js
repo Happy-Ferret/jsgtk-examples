@@ -8,9 +8,10 @@ Run it with:
     jsgtk egList.js
 */
 
-const GObj  = imports.gi.GObject;
-const Gtk   = imports.gi.Gtk;
-const Lang  = imports.lang;
+const
+    GObj  = require('GObject'),
+    Gtk = require('Gtk')
+;
 
 const App = function () { 
 

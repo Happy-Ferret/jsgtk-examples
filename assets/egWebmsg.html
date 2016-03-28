@@ -9,8 +9,8 @@
             document.getElementById ("msg").innerHTML = (message);
         }
         function messageToGTK () {
-            // Webkit will change 'status bar/window.status' text to send messages to GTK
-            window.status = 'Message from Webkit';
+            // Webkit will be notified about a request change
+            location.href = 'jsgtk:' + encodeURIComponent('Message from Webkit');
         }
         </script>
 
