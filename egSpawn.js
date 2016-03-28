@@ -1,108 +1,70 @@
-#!/usr/bin/gjs
+#!/usr/bin/env jsgtk
 
 /*
-GJS example showing how to build Gtk javascript applications
-executing a non blocking command line call, it uses
-TextBuffer, TextView, GLib.spawn_async_with_pipes,
-Gio.UnixInputStream, Gio.DataInputStream and read_line_async
+JSGtk+ example showing how to build Gtk javascript applications
+executing a non blocking command line call.
 
 Run it with:
-    gjs egSpawn.js
+    jsgtk egSpawn.js
 */
 
-const Gio   = imports.gi.Gio;
-const GLib  = imports.gi.GLib;
-const Gtk   = imports.gi.Gtk;
-const Lang  = imports.lang;
+const
+    GLib  = require('GLib'),
+    Gtk   = require('Gtk'),
+    spawn = require('child_process').spawn
+;
 
-// Get application folder and add it into the imports path
-function getAppFileInfo() {
-    let stack = (new Error()).stack,
-        stackLine = stack.split('\n')[1],
-        coincidence, path, file;
-
-    if (!stackLine) throw new Error('Could not find current file (1)');
-
-    coincidence = new RegExp('@(.+):\\d+').exec(stackLine);
-    if (!coincidence) throw new Error('Could not find current file (2)');
-
-    path = coincidence[1];
-    file = Gio.File.new_for_path(path);
-    return [file.get_path(), file.get_parent().get_path(), file.get_basename()];
-}
-const path = getAppFileInfo()[1];
-imports.searchPath.push(path);
-
-// Import spawn library
-const Spawn = imports.assets.spawn;
-
-const App = function () { 
-
+const App = function App() { 
     this.title = 'Example Spawn';
-    GLib.set_prgname(this.title);
+    GLib.setPrgname(this.title);
 };
 
 
-App.prototype.run = function (ARGV) {
+App.prototype.run = function () {
 
-    this.application = new Gtk.Application();
-    this.application.connect('activate', Lang.bind(this, this.onActivate));
-    this.application.connect('startup', Lang.bind(this, this.onStartup));
+    this.application = new Gtk.Application()
+        .on('activate', () => {
+            this.window.showAll();
+        })
+        .once('startup', () => {
+            this.buildUI();
+            this.spawn();
+        });
+
     this.application.run([]);
-};
-
-App.prototype.onActivate = function () {
-
-    this.window.show_all();
-};
-
-App.prototype.onStartup = function() {
-
-    this.buildUI();
-    this.spawn();
 };
 
 App.prototype.buildUI = function() {
 
-    let scroll;
-
     this.window = new Gtk.ApplicationWindow({ application: this.application,
                                               title: this.title,
-                                              default_height: 200,
-                                              default_width: 200,
-                                              window_position: Gtk.WindowPosition.CENTER });
+                                              defaultHeight: 200,
+                                              defaultWidth: 200,
+                                              windowPosition: Gtk.WindowPosition.CENTER });
     try {
-        this.window.set_icon_from_file(path + '/assets/appIcon.png');
+        this.window.setIconFromFile(__dirname + '/assets/appIcon.png');
     } catch (err) {
-        this.window.set_icon_name('application-x-executable');
+        this.window.setIconName('application-x-executable');
     }
 
-    scroll = new Gtk.ScrolledWindow({ vexpand: true });
     this.buffer = new Gtk.TextBuffer();
-    this.buffer.insert_at_cursor('Result:\n', -1);
+    this.buffer.insertAtCursor('Result:\n', -1);
     this.view = new Gtk.TextView();
-    this.view.set_buffer(this.buffer);
+    this.view.setBuffer(this.buffer);
 
+    let scroll = new Gtk.ScrolledWindow({ vexpand: true });
     scroll.add(this.view);
     this.window.add(scroll);
 };
 
 App.prototype.spawn = function() {
 
-    let reader;
+    spawn('ls', ['-ltr', '.']).stdout.on('data', line => {
+        this.buffer.insertAtCursor(line.toString(), -1);
+    });
 
-    reader = new Spawn.SpawnReader();
-    reader.spawn('./', ['ls', '-ltr', '.'], Lang.bind (this, function (line) {
-        this.buffer.insert_at_cursor(String(line) + '\n', -1);
-    }));
-
-/*  // Example of 'continuous' read with 'tail':
-    reader.spawn('./', ['tail', '-f', 'a.txt'], Lang.bind (this, function (line) {
-        this.buffer.insert_at_cursor(String(line) + '\n', -1);
-    }));
-*/
 }; 
 
 //Run the application
 let app = new App();
-app.run(ARGV);
+app.run();

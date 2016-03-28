@@ -1,41 +1,23 @@
-#!/usr/bin/gjs
+#!/usr/bin/env jsgtk
 
 /*
-GJS example showing how to build Gtk javascript applications
+JSGtk+ example showing how to build Gtk javascript applications
 using Gtk HeaderBar, SearchBar and a filtered FlowBox
 
 Run it with:
-    gjs egSearchjs
+    jsgtk egSearchjs
 */
 
-const Gdk   = imports.gi.Gdk;
-const Gio   = imports.gi.Gio;
-const GLib  = imports.gi.GLib;
-const Gtk   = imports.gi.Gtk;
-const Lang  = imports.lang;
-
-// Get application folder and add it into the imports path
-function getAppFileInfo() {
-    let stack = (new Error()).stack,
-        stackLine = stack.split('\n')[1],
-        coincidence, path, file;
-
-    if (!stackLine) throw new Error('Could not find current file (1)');
-
-    coincidence = new RegExp('@(.+):\\d+').exec(stackLine);
-    if (!coincidence) throw new Error('Could not find current file (2)');
-
-    path = coincidence[1];
-    file = Gio.File.new_for_path(path);
-    return [file.get_path(), file.get_parent().get_path(), file.get_basename()];
-}
-const path = getAppFileInfo()[1];
-imports.searchPath.push(path);
+const
+    Gdk = require('Gdk'),
+    GLib = require('GLib'),
+    Gtk = require('Gtk')
+;
 
 const App = function () { 
 
     this.title = 'Example Search';
-    GLib.set_prgname(this.title);
+    GLib.setPrgname(this.title);
 
     this.filterText = '';
 };
@@ -43,55 +25,50 @@ const App = function () {
 App.prototype.run = function (ARGV) {
 
     this.application = new Gtk.Application();
-    this.application.connect('activate', Lang.bind(this, this.onActivate));
-    this.application.connect('startup', Lang.bind(this, this.onStartup));
+    this.application.on('activate', this.onActivate.bind(this));
+    this.application.on('startup', this.onStartup.bind(this));
     this.application.run([]);
 };
 
 App.prototype.onActivate = function () {
-
-    this.window.show_all();
+    this.window.showAll();
 };
 
 App.prototype.onStartup = function() {
-
     this.buildUI();
 };
 
 App.prototype.buildUI = function() {
-
     this.window = new Gtk.ApplicationWindow({ application: this.application,
-                                              default_height: 325,
-                                              default_width: 720,
-                                              window_position: Gtk.WindowPosition.CENTER });
+                                              defaultHeight: 325,
+                                              defaultWidth: 720,
+                                              windowPosition: Gtk.WindowPosition.CENTER });
     try {
-        this.window.set_icon_from_file(path + '/assets/appIcon.png');
+        this.window.setIconFromFile(__dirname + '/assets/appIcon.png');
     } catch (err) {
-        this.window.set_icon_name('application-x-executable');
+        this.window.setIconName('application-x-executable');
     }
 
-    this.window.set_titlebar(this.getHeader());
+    this.window.setTitlebar(this.getHeader());
     this.window.add(this.getBody());
 };
 
 App.prototype.getHeader = function () {
 
-    let imageSearch;
-
     this.headerBar = new Gtk.HeaderBar();
-    this.headerBar.set_show_close_button(true);
+    this.headerBar.setShowCloseButton(true);
 
-    imageSearch = new Gtk.Image ({ icon_name: 'edit-find-symbolic', icon_size: Gtk.IconSize.SMALL_TOOLBAR });
+    let imageSearch = new Gtk.Image ({ iconName: 'edit-find-symbolic', iconSize: Gtk.IconSize.SMALL_TOOLBAR });
     this.buttonSearch = new Gtk.ToggleButton({ image: imageSearch });
-    this.buttonSearch.connect ('clicked', Lang.bind (this, function () { 
-        if (this.buttonSearch.get_active()) {
-            this.searchBar.set_search_mode(true);
+    this.buttonSearch.on('clicked', () => { 
+        if (this.buttonSearch.getActive()) {
+            this.searchBar.setSearchMode(true);
         } else {
-            this.searchBar.set_search_mode(false);
+            this.searchBar.setSearchMode(false);
         }
-    }));
+    });
 
-    this.headerBar.pack_end(this.buttonSearch);
+    this.headerBar.packEnd(this.buttonSearch);
 
     return this.headerBar;
 };
@@ -106,33 +83,35 @@ App.prototype.getBody = function () {
 };
 
 App.prototype.getSearch = function () {
-    
-    let searchEntry;
 
     this.searchBar = new Gtk.SearchBar();
     this.searchBar.show();
-    searchEntry = new Gtk.SearchEntry();
-    searchEntry.show();
 
-    searchEntry.connect('search-changed', Lang.bind (this, function () {
-        this.filterText = searchEntry.get_text();
-        this.flow.invalidate_filter();
-    }));
-    this.window.connect('key-press-event', Lang.bind (this, function (widget, event) {
+    let searchEntry = new Gtk.SearchEntry();
+    searchEntry.show();
+    searchEntry.on('search-changed', () => {
+        this.filterText = searchEntry.getText();
+        this.flow.invalidateFilter();
+    });
+
+    this.window.on('key-press-event', (widget, event) => {
+        // TODO: events don't have camelCase methods
+        print(event);
         let key = event.get_keyval()[1];
         if (key !== Gdk.KEY_Escape
             && key !== Gdk.KEY_Up
             && key !== Gdk.KEY_Down
             && key !== Gdk.KEY_Left
             && key !== Gdk.KEY_Right) {
-            if (!this.buttonSearch.get_active()) {
-                this.buttonSearch.set_active(true);
+            if (!this.buttonSearch.getActive()) {
+                this.buttonSearch.setActive(true);
             }
         } else {
-            this.buttonSearch.set_active(false);
+            this.buttonSearch.setActive(false);
         }
-    }));
-    this.searchBar.connect_entry(searchEntry);
+    });
+
+    this.searchBar.connectEntry(searchEntry);
     this.searchBar.add(searchEntry);
 
     return this.searchBar;
@@ -140,11 +119,9 @@ App.prototype.getSearch = function () {
 
 App.prototype.getFlow = function () {
 
-    let scroll;
-
-    scroll = new Gtk.ScrolledWindow({ vexpand: true });
+    let scroll = new Gtk.ScrolledWindow({ vexpand: true });
     this.flow = new Gtk.FlowBox({ vexpand: true });
-    this.flow.set_filter_func(Lang.bind (this, this.filter));
+    this.flow.setFilterFunc(this.filter.bind(this));
 
     this.flow.insert(this.newFlowLabel('1a lorem'), -1);
     this.flow.insert(this.newFlowLabel('2b ipsum'), -1);
@@ -161,18 +138,13 @@ App.prototype.getFlow = function () {
 };
 
 App.prototype.newFlowLabel = function (text) {
-
     let label = new Gtk.Label({ label: text });
-
-    label.set_size_request(125, 125);
+    label.setSizeRequest(125, 125);
     return label;
 };
 
 App.prototype.filter = function (item) {
-
-
-    let label = item.get_child().get_label();
-   
+    let label = item.getChild().getLabel();
     if (this.filterText !== '') {
         if (label.indexOf(this.filterText) !== -1) {
             return true;
@@ -180,13 +152,11 @@ App.prototype.filter = function (item) {
             return false;
         }
     } else {
-
         return true;
     }
 };
 
 App.prototype.printText = function (text) {
-
     print(text);
 };
 

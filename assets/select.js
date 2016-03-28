@@ -1,16 +1,22 @@
-const Gdk   = imports.gi.Gdk;
-const Gtk   = imports.gi.Gtk;
-const Lang  = imports.lang;
-const Pango = imports.gi.Pango;
 
-const SelectItem = function (properties) {
+const
+    Gtk   = require('Gtk'),
+    Pango = require('Pango')
+;
+
+module.exports = {
+    SelectItem: SelectItem,
+    SelectFlow: SelectFlow
+};
+
+function SelectItem(properties) {
 
     this.id = properties.id;
     this.selectingMode = true;
     this.text = properties.text;
     this.widget = this.getWidget(properties.image, properties.text);
     this.signals = { };
-};
+}
 
 SelectItem.prototype.setSelectingMode = function(selection) {
 
@@ -36,12 +42,12 @@ SelectItem.prototype.getWidget = function (image, text) {
     this.box.set_size_request(25, 25);
 
     this.check = new Gtk.CheckButton({ halign: Gtk.Align.END, margin:5, valign: Gtk.Align.END});
-    this.box.add(this.check);    
-    this.check.connect('toggled', Lang.bind(this, function(widget) { 
+    this.box.add(this.check);
+    this.check.on('toggled', (widget) => {
         if (this.signals.selectionChanged) {
             this.signals.selectionChanged(this.id, widget.get_active());
         }
-    }));
+    });
 
     overlay = new Gtk.Overlay();
     overlay.set_size_request(125, 150);
@@ -63,7 +69,7 @@ SelectItem.prototype.getWidget = function (image, text) {
     // Set the action for this widget
     event = new Gtk.EventBox();
     event.add(widget);
-    event.connect('button-press-event',  Lang.bind(this, function() { 
+    event.on('button-press-event', () => { 
         if (this.selectingMode) {
             this.check.set_active(!this.check.get_active());
         } else {
@@ -71,12 +77,12 @@ SelectItem.prototype.getWidget = function (image, text) {
                 this.signals.action(this.id);
             }
         }
-    }));
+    });
 
     return event;
 };
 
-SelectItem.prototype.connect = function(type, func) {
+SelectItem.prototype.on = function(type, func) {
 
     if (type === 'selection-changed') {
         this.signals.selectionChanged = func;
@@ -86,7 +92,7 @@ SelectItem.prototype.connect = function(type, func) {
     }
 };
 
-const SelectFlow = function () {
+function SelectFlow() {
 
     this.counter = -1;
     this.pointers = {};
@@ -94,12 +100,12 @@ const SelectFlow = function () {
     this.widget = this.getWidget();
     this.signals = { };
     this.selected = [];
-};
+}
 
 SelectFlow.prototype.getWidget = function() {
 
     this.flow = new Gtk.FlowBox({ vexpand: true, selection_mode: Gtk.SelectionMode.NONE });
-    this.flow.set_filter_func(Lang.bind (this, this.filter));
+    this.flow.set_filter_func(this.filter.bind(this));
     return this.flow;
 };
 
@@ -107,7 +113,7 @@ SelectFlow.prototype.insert = function(image, text) {
 
     this.counter = this.counter + 1;
     this.pointers[this.counter] = new SelectItem({ id: this.counter, image: image, text: text });
-    this.pointers[this.counter].connect('selection-changed', Lang.bind (this, function (id, active) {
+    this.pointers[this.counter].on('selection-changed', (id, active) => {
 
         let pos;
         if (this.signals.selectionChanged) {
@@ -124,12 +130,12 @@ SelectFlow.prototype.insert = function(image, text) {
             }
             this.signals.selectionChanged();
         }
-    }));
-    this.pointers[this.counter].connect('action', Lang.bind (this, function (id) {
+    });
+    this.pointers[this.counter].on('action', (id) => {
         if (this.signals.action) {
             this.signals.action(id);
         }
-    }));
+    });
     
     this.flow.insert(this.pointers[this.counter].widget, -1);
 
@@ -213,7 +219,7 @@ SelectFlow.prototype.deleteSelected = function () {
     }
 };
 
-SelectFlow.prototype.connect = function(type, func) {
+SelectFlow.prototype.on = function(type, func) {
 
     if (type === 'selection-changed') {
         this.signals.selectionChanged = func;
