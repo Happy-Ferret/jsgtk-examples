@@ -31,7 +31,7 @@ App.prototype.run = function (ARGV) {
 };
 
 App.prototype.onActivate = function () {
-    this.window.show_all();
+    this.window.showAll();
 };
 
 App.prototype.onStartup = function() {
@@ -53,9 +53,9 @@ App.prototype.buildUI = function() {
                                               defaultWidth: 700,
                                               windowPosition: Gtk.WindowPosition.CENTER });
     try {
-        this.window.set_icon_from_file(__dirname + '/assets/appIcon.png');
+        this.window.setIconFromFile(__dirname + '/assets/appIcon.png');
     } catch (err) {
-        this.window.set_icon_name('application-x-executable');
+        this.window.setIconName('application-x-executable');
     }
 
     this.window.add(this.buildBody());
@@ -66,61 +66,61 @@ App.prototype.buildBody = function() {
     let embed, grid, titleRotate, scale, buttonStart, buttonStop;
 
     embed = new GtkClutter.Embed();
-    embed.set_size_request(400, 240);
+    embed.setSizeRequest(400, 240);
 
     this.position = new Gtk.Label({ label: 'Drag the square' });
-    this.position.set_size_request(300, -1);
+    this.position.setSizeRequest(300, -1);
 
     titleRotate = new Gtk.Label({ label: 'Rotation: ' });
-    titleRotate.set_size_request(150, -1);
+    titleRotate.setSizeRequest(150, -1);
 
     scale = new Gtk.Scale({
         digits: 1,
-        draw_value: true,
-        value_pos: Gtk.PositionType.LEFT
+        drawValue: true,
+        valuePos: Gtk.PositionType.LEFT
     });
-    scale.set_range(-35, 35);
-    scale.set_size_request(150, -1);
-    scale.connect('change-value', Lang.bind(this, function(widget) {
-        this.actor.set_rotation(Clutter.RotateAxis.Y_AXIS, widget.get_value(), 50, 0, 0);
-    }));
+    scale.setRange(-35, 35);
+    scale.setSizeRequest(150, -1);
+    scale.connect('change-value', widget => {
+        this.actor.setRotation(Clutter.RotateAxis.Y_AXIS, widget.getValue(), 50, 0, 0);
+    });
 
     buttonStart = new Gtk.Button({ label: 'Play' });
-    buttonStart.connect ('clicked', Lang.bind (this, function () {
+    buttonStart.connect ('clicked', () => {
 
         let tg, pt;
 
-        pt = new Clutter.PropertyTransition({ property_name: 'rotation-angle-z' });
-        pt.set_from(0);
-        pt.set_to(360);
-        pt.set_duration(2000);
-        pt.set_progress_mode(Clutter.AnimationMode.LINEAR);
+        pt = new Clutter.PropertyTransition({ propertyName: 'rotation-angle-z' });
+        pt.setFrom(0);
+        pt.setTo(360);
+        pt.setDuration(2000);
+        pt.setProgressMode(Clutter.AnimationMode.LINEAR);
 
         tg = new Clutter.TransitionGroup();
-        tg.set_duration(2000);
-        tg.set_repeat_count(-1); // Infinite
-        tg.add_transition(pt);
+        tg.setDuration(2000);
+        tg.setRepeatCount(-1); // Infinite
+        tg.addTransition(pt);
         // Add more property transitions ...
         
-        this.actor.add_transition('rotate_transition', tg);
+        this.actor.addTransition('rotateTransition', tg);
 
-        scale.set_sensitive(false);
-        buttonStart.set_sensitive(false);
-        buttonStop.set_sensitive(true);
-    }));
+        scale.setSensitive(false);
+        buttonStart.setSensitive(false);
+        buttonStop.setSensitive(true);
+    });
 
     buttonStop = new Gtk.Button({ label: 'Stop', sensitive: false });
-    buttonStop.connect ('clicked', Lang.bind (this, function () {
+    buttonStop.connect ('clicked', () => {
 
-        this.actor.remove_transition('rotate_transition');
-        this.actor.set_rotation_angle(Clutter.RotateAxis.Z_AXIS, 0);
+        this.actor.removeTransition('rotateTransition');
+        this.actor.setRotationAngle(Clutter.RotateAxis.Z_AXIS, 0);
 
-        scale.set_sensitive(true);
-        buttonStart.set_sensitive(true);
-        buttonStop.set_sensitive(false);
-    }));
+        scale.setSensitive(true);
+        buttonStart.setSensitive(true);
+        buttonStop.setSensitive(false);
+    });
 
-    grid = new Gtk.Grid({ column_spacing: 6, margin: 15, row_spacing: 6 });
+    grid = new Gtk.Grid({ columnSpacing: 6, margin: 15, rowSpacing: 6 });
     grid.attach(embed, 0, 0, 1, 3);
     grid.attach(this.position, 1, 0, 2, 1);
     grid.attach(titleRotate, 1, 1, 1, 1);
@@ -128,9 +128,9 @@ App.prototype.buildBody = function() {
     grid.attach(buttonStart, 1, 2, 1, 1);
     grid.attach(buttonStop, 2, 2, 1, 1);
     
-    this.stage = embed.get_stage();
-    this.stage.set_color(new Clutter.Color({ red: 255, green: 255, blue: 255, alpha: 255 }));
-    this.stage.add_child(this.getActor());
+    this.stage = embed.getStage();
+    this.stage.setColor(new Clutter.Color({ red: 255, green: 255, blue: 255, alpha: 255 }));
+    this.stage.addChild(this.getActor());
 
     return grid;
 };
@@ -143,19 +143,19 @@ App.prototype.getActor = function() {
     colorLight = new Clutter.Color({ red: 150, green: 175, blue: 150, alpha: 255 });
 
     action = new Clutter.DragAction({
-        drag_axis: Clutter.DragAxis.AXIS_NONE,
-        x_drag_threshold: 0,
-        y_drag_threshold: 0
+        dragAxis: Clutter.DragAxis.AXIS_NONE,
+        xDragThreshold: 0,
+        yDragThreshold: 0
     });
-    action.connect('drag-begin', Lang.bind(this, function(action, actor, x, y, modifiers) {
-        this.position.set_text('X: ' + x.toFixed(2) + ', Y: ' + y.toFixed(2) + ' - S');
-    }));
-    action.connect('drag-end', Lang.bind(this, function(action, actor, x, y, modifiers) {
-        this.position.set_text('X: ' + x.toFixed(2) + ', Y: ' + y.toFixed(2) + ' - E');
-    }));
-    action.connect('drag-motion', Lang.bind(this, function(action, actor, x, y, modifiers) {
-        this.position.set_text('X: ' + x.toFixed(2) + ', Y: ' + y.toFixed(2) + ' - D');
-    }));
+    action.connect('drag-begin', (action, actor, x, y, modifiers) => {
+        this.position.setText('X: ' + x.toFixed(2) + ', Y: ' + y.toFixed(2) + ' - S');
+    });
+    action.connect('drag-end', (action, actor, x, y, modifiers) => {
+        this.position.setText('X: ' + x.toFixed(2) + ', Y: ' + y.toFixed(2) + ' - E');
+    });
+    action.connect('drag-motion', (action, actor, x, y, modifiers) => {
+        this.position.setText('X: ' + x.toFixed(2) + ', Y: ' + y.toFixed(2) + ' - D');
+    });
     /* 
     // Simple actor example:
     this.actor = new Clutter.Actor({
@@ -166,7 +166,7 @@ App.prototype.getActor = function() {
     */
     // Textured actor example
     this.actor = new Clutter.Texture({
-        background_color: colorDark,
+        backgroundColor: colorDark,
         filename: __dirname + '/assets/egClutter.png',
         height: 100,
         reactive: true,
@@ -174,16 +174,14 @@ App.prototype.getActor = function() {
         y: 150,
         width: 100
     });
-    this.actor.connect('enter-event', Lang.bind(this, function(actor, event) {
-        actor.set_background_color(colorLight);
+    this.actor.connect('enter-event', (actor, event) => {
+        actor.setBackgroundColor(colorLight);
 
-    }));
-    this.actor.connect('leave-event', Lang.bind(this, function(actor, event) {
-        actor.set_background_color(colorDark);
-    }));
-    this.actor.add_action(action);
-
-    
+    });
+    this.actor.connect('leave-event', (actor, event) => {
+        actor.setBackground_color(colorDark);
+    });
+    this.actor.addAction(action);
 
     return this.actor;
 };
