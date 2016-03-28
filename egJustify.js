@@ -8,50 +8,29 @@ Run it with:
     gjs egJustify.js
 */
 
-const Gio   = imports.gi.Gio;
-const GLib  = imports.gi.GLib;
-const Gtk   = imports.gi.Gtk;
-const Lang  = imports.lang;
-const Pango = imports.gi.Pango;
-
-// Get application folder and add it into the imports path
-function getAppFileInfo() {
-    let stack = (new Error()).stack,
-        stackLine = stack.split('\n')[1],
-        coincidence, path, file;
-
-    if (!stackLine) throw new Error('Could not find current file (1)');
-
-    coincidence = new RegExp('@(.+):\\d+').exec(stackLine);
-    if (!coincidence) throw new Error('Could not find current file (2)');
-
-    path = coincidence[1];
-    file = Gio.File.new_for_path(path);
-    return [file.get_path(), file.get_parent().get_path(), file.get_basename()];
-}
-const path = getAppFileInfo()[1];
-imports.searchPath.push(path);
+const
+    Gtk   = require('Gtk'),
+    Pango = require('Pango')
+;
 
 const App = function () { 
     this.title = 'Example Justify';
-    GLib.set_prgname(this.title);
+    require('GLib').setPrgname(this.title);
 };
 
 App.prototype.run = function (ARGV) {
 
     this.application = new Gtk.Application();
-    this.application.connect('activate', Lang.bind(this, this.onActivate));
-    this.application.connect('startup', Lang.bind(this, this.onStartup));
+    this.application.on('activate', this.onActivate.bind(this));
+    this.application.on('startup', this.onStartup.bind(this));
     this.application.run([]);
 };
 
 App.prototype.onActivate = function () {
-
-    this.window.show_all();
+    this.window.showAll();
 };
 
 App.prototype.onStartup = function() {
-
     this.buildUI();
 };
 
@@ -59,13 +38,13 @@ App.prototype.buildUI = function() {
 
     this.window = new Gtk.ApplicationWindow({ application: this.application,
                                               title: this.title,
-                                              default_height: 200,
-                                              default_width: 200,
-                                              window_position: Gtk.WindowPosition.CENTER });
+                                              defaultHeight: 200,
+                                              defaultWidth: 200,
+                                              windowPosition: Gtk.WindowPosition.CENTER });
     try {
-        this.window.set_icon_from_file(path + '/assets/appIcon.png');
+        this.window.setIconFromFile(__dirname + '/assets/appIcon.png');
     } catch (err) {
-        this.window.set_icon_name('application-x-executable');
+        this.window.setIconName('application-x-executable');
     }
 
     this.window.add(this.getBody());
@@ -80,8 +59,8 @@ App.prototype.getBody = function() {
     right = this.getLabel(Gtk.Justification.RIGHT);
     justify  = this.getLabel(Gtk.Justification.FILL);
 
-    grid = new Gtk.Grid({ column_spacing: 25 });
-    grid.set_border_width(15);
+    grid = new Gtk.Grid({ columnSpacing: 25 });
+    grid.setBorderWidth(15);
     grid.attach(left, 0, 0, 1, 1);
     grid.attach(center, 1, 0, 1, 1);
     grid.attach(right, 2, 0, 1, 1);
@@ -97,12 +76,12 @@ App.prototype.getLabel = function(justification) {
     text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt';
 
     label = new Gtk.Label({ halign: Gtk.Align.CENTER, label: text, valign: Gtk.Align.START });
-    label.set_size_request(100, -1);
-    label.set_ellipsize(Pango.EllipsizeMode.END);
-    label.set_max_width_chars(10);
-    label.set_line_wrap(true);
-    label.set_justify(justification);
-    label.set_lines(6);
+    label.setSizeRequest(100, -1);
+    label.setEllipsize(Pango.EllipsizeMode.END);
+    label.setMaxWidthChars(10);
+    label.setLineWrap(true);
+    label.setJustify(justification);
+    label.setLines(6);
 
     return label;
 };
