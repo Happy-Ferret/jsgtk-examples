@@ -95,9 +95,7 @@ App.prototype.getSearch = function () {
     });
 
     this.window.on('key-press-event', (widget, event) => {
-        // TODO: events don't have camelCase methods
-        print(event);
-        let key = event.get_keyval()[1];
+        let key = event.getKeyval()[1];
         if (key !== Gdk.KEY_Escape
             && key !== Gdk.KEY_Up
             && key !== Gdk.KEY_Down

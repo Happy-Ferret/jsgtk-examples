@@ -78,8 +78,8 @@ App.prototype.getBody = function() {
 
     let button = new Gtk.Button({ label: 'GTK to Webkit message' }).on('clicked', () => {
         // Execute one Webkit function to send a message from GTK to Webkit
-        webView.runJavascript('messageFromGTK("Message from GTK!");', null, (webView, result) => {
-            webView.runJavascriptFinish(result);
+        webView.runJavaScript('messageFromGTK("Message from GTK!");', null, (webView, result) => {
+            webView.runJavaScriptFinish(result);
         });
     });
     grid.attach(button, 0, 1, 1, 1);
