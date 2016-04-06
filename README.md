@@ -30,6 +30,11 @@ jsgtk egSearch
 ```
 
 
+#### Dependencies
+Some demo requires extra packages such `clutter`, `clutter-gtk` and/or `webkit2`.
+
+
+
 ### egAsset.js
 
 JSGtk+ example showing how to build Gtk javascript applications
