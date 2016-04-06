@@ -31,7 +31,7 @@ jsgtk egSearch
 
 
 #### Dependencies
-Some demo requires extra packages such `clutter`, `clutter-gtk` and/or `webkit2`.
+Some demo requires extra packages on OSX MacPorts such `clutter-gtk` and/or `webkit2-gtk`.
 
 
 
